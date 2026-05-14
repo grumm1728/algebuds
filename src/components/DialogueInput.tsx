@@ -1,17 +1,19 @@
-import type { RefObject } from 'react'
-import type { ChatMessage, KnowledgeKey, RobotPetData } from '../types'
+import { useEffect, useRef, type RefObject } from 'react'
+import type { ChatMessage, DemoSuggestion, KnowledgeKey, RobotPetData } from '../types'
 
 type DialogueInputProps = {
   value: string
   selectedPetName: string
   selectedPetColor: RobotPetData['color']
   messages: ChatMessage[]
+  suggestions: DemoSuggestion[]
   hasAttempt: boolean
   detectedIdeas: KnowledgeKey[]
   ideaLabels: Record<KnowledgeKey, string>
   inputRef: RefObject<HTMLInputElement | null>
   onChange: (value: string) => void
   onSubmit: () => void
+  onSuggestion: (suggestion: DemoSuggestion) => void
 }
 
 export function DialogueInput({
@@ -19,16 +21,27 @@ export function DialogueInput({
   selectedPetName,
   selectedPetColor,
   messages,
+  suggestions,
   hasAttempt,
   detectedIdeas,
   ideaLabels,
   inputRef,
   onChange,
   onSubmit,
+  onSuggestion,
 }: DialogueInputProps) {
+  const chatLogRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    chatLogRef.current?.scrollTo({
+      top: chatLogRef.current.scrollHeight,
+      behavior: 'smooth',
+    })
+  }, [messages])
+
   return (
     <section className={`panel-card dialogue-panel dialogue-panel--${selectedPetColor}`} aria-label="Pet chat">
-      <div className="chat-log">
+      <div className="chat-log" ref={chatLogRef}>
         {messages.map((message) => (
           <div
             className={`chat-row chat-row--${message.sender}`}
@@ -41,6 +54,19 @@ export function DialogueInput({
           </div>
         ))}
       </div>
+      {suggestions.length > 0 && (
+        <div className="suggestion-tray" aria-label="Suggested messages">
+          {suggestions.map((suggestion) => (
+            <button
+              key={suggestion.id}
+              type="button"
+              onClick={() => onSuggestion(suggestion)}
+            >
+              {suggestion.student}
+            </button>
+          ))}
+        </div>
+      )}
       <form
         className="dialogue-input"
         onSubmit={(event) => {

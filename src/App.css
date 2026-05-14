@@ -630,7 +630,7 @@ textarea {
 
 .dialogue-panel {
   display: grid;
-  grid-template-rows: minmax(0, 1fr) auto auto;
+  grid-template-rows: minmax(0, 1fr) auto auto auto;
   gap: 12px;
   background:
     radial-gradient(circle at 14px 14px, var(--chat-pattern) 0 2px, transparent 2.5px) 0 0 / 28px 28px,
@@ -736,6 +736,33 @@ textarea {
   height: 48px;
 }
 
+.suggestion-tray {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 3px solid #4b385f;
+  border-radius: 8px;
+  background: rgba(255, 253, 245, 0.72);
+}
+
+.suggestion-tray button {
+  width: 100%;
+  border: 3px solid #4b385f;
+  border-radius: 12px;
+  padding: 9px 12px;
+  background: #fffdf5;
+  color: #47385b;
+  cursor: pointer;
+  font-weight: 780;
+  line-height: 1.22;
+  text-align: left;
+  box-shadow: 0 3px 0 rgba(75, 56, 95, 0.18);
+}
+
+.suggestion-tray button:hover {
+  background: #dff2ea;
+}
+
 .idea-preview {
   display: flex;
   flex-wrap: wrap;
@@ -822,11 +849,42 @@ textarea {
   padding: 8px 12px;
   border-left: 5px solid #7cb8b8;
   background: rgba(255, 255, 255, 0.72);
-  font-size: 1rem;
+  font-family: "Comic Sans MS", "Bradley Hand ITC", "Segoe Print", cursive;
+  font-size: 1.08rem;
   font-weight: 780;
+  min-height: 42px;
+}
+
+.whiteboard-character {
   opacity: 0;
-  transform: translateY(6px);
-  animation: stepIn 360ms ease forwards;
+  animation: writeCharacter 90ms linear forwards;
+  white-space: pre;
+}
+
+.robot-pencil {
+  position: absolute;
+  left: 25%;
+  top: 36%;
+  width: 56px;
+  height: 13px;
+  border: 3px solid #4b385f;
+  border-radius: 999px 6px 6px 999px;
+  background: linear-gradient(90deg, #ffcf5d 0 70%, #f6f0df 70% 86%, #4b385f 86%);
+  box-shadow: 0 4px 0 rgba(75, 56, 95, 0.16);
+  transform-origin: center;
+  animation: robotPencilWrite 4.8s ease-in-out infinite;
+}
+
+.robot-pencil::before {
+  content: "";
+  position: absolute;
+  left: -13px;
+  top: -7px;
+  width: 16px;
+  height: 21px;
+  border: 3px solid #4b385f;
+  border-radius: 8px;
+  background: #aee7d2;
 }
 
 .whiteboard-error {
@@ -896,6 +954,38 @@ textarea {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes writeCharacter {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes robotPencilWrite {
+  0% {
+    transform: translate(0, 0) rotate(-8deg);
+  }
+
+  22% {
+    transform: translate(230px, 22px) rotate(4deg);
+  }
+
+  42% {
+    transform: translate(30px, 74px) rotate(-6deg);
+  }
+
+  63% {
+    transform: translate(245px, 124px) rotate(5deg);
+  }
+
+  84% {
+    transform: translate(42px, 176px) rotate(-7deg);
+  }
+
+  100% {
+    transform: translate(0, 0) rotate(-8deg);
   }
 }
 

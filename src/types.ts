@@ -38,3 +38,20 @@ export type ChatMessage = {
   sender: 'pet' | 'student'
   text: string
 }
+
+export type DemoSuggestion = {
+  id: string
+  student: string
+  bot: string
+}
+
+export type DemoScript = {
+  id: string
+  petId: string
+  title: string
+  opening: string
+  problem: string
+  readyMessage: string
+  suggestions: DemoSuggestion[]
+  whiteboardSteps: string[]
+}

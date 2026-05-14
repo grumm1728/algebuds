@@ -3,7 +3,8 @@ import './App.css'
 import { buildPetAttempt, detectTeachingIdeas, improveKnowledge, knowledgeLabels, problems } from './algebra'
 import { ClassroomScene } from './components/ClassroomScene'
 import { DialogueInput } from './components/DialogueInput'
-import type { ChatMessage, KnowledgeKey, PetAttempt, RobotPetData } from './types'
+import { getDemoScriptForPet } from './demoScripts'
+import type { ChatMessage, DemoSuggestion, KnowledgeKey, PetAttempt, RobotPetData } from './types'
 
 const blankKnowledge = {
   isolate: 0,
@@ -60,7 +61,7 @@ const starterMessages: ChatMessage[] = starterPets.flatMap((pet) => [
     id: `${pet.id}-question`,
     petId: pet.id,
     sender: 'pet',
-    text: pet.question,
+    text: getDemoScriptForPet(pet.id)?.opening || pet.question,
   },
   {
     id: `${pet.id}-reaction`,
@@ -79,11 +80,26 @@ function App() {
   const [starPosition, setStarPosition] = useState<{ x: number; y: number } | null>(null)
   const [currentProblemIndex, setCurrentProblemIndex] = useState(0)
   const [messages, setMessages] = useState<ChatMessage[]>(starterMessages)
+  const [scriptProgress, setScriptProgress] = useState<Record<string, number>>({})
   const inputRef = useRef<HTMLInputElement | null>(null)
 
   const selectedPet = pets.find((pet) => pet.id === selectedPetId) ?? pets[0]
-  const problem = problems[currentProblemIndex]
+  const selectedScript = getDemoScriptForPet(selectedPetId)
+  const selectedScriptProgress = scriptProgress[selectedPetId] ?? 0
+  const problem = selectedScript
+    ? {
+        prompt: selectedScript.problem,
+        correctSteps: selectedScript.whiteboardSteps,
+        answer: selectedScript.whiteboardSteps.at(-1) ?? '',
+      }
+    : problems[currentProblemIndex]
   const selectedMessages = messages.filter((message) => message.petId === selectedPetId)
+  const visibleSuggestions = selectedScript
+    ? selectedScript.suggestions.slice(selectedScriptProgress, selectedScriptProgress + 2)
+    : []
+  const canPetTry = selectedScript
+    ? selectedScriptProgress >= selectedScript.suggestions.length
+    : selectedPet.chatCount > 0
 
   const detectedIdeas = useMemo(() => detectTeachingIdeas(teachingText), [teachingText])
 
@@ -100,13 +116,15 @@ function App() {
     window.setTimeout(() => inputRef.current?.focus(), 0)
   }
 
-  function handleTeach() {
-    const ideas = detectTeachingIdeas(teachingText)
-    const trimmedText = teachingText.trim()
+  function sendStudentMessage(messageText: string) {
+    const trimmedText = messageText.trim()
     if (!trimmedText) return
 
+    const scriptedSuggestion = selectedScript?.suggestions[selectedScriptProgress]
+    const scriptMatched = scriptedSuggestion?.student === trimmedText
+    const ideas = detectTeachingIdeas(trimmedText)
     const isFeedback = attempt !== null
-    const response = botResponse(ideas, isFeedback)
+    const response = scriptMatched ? scriptedSuggestion.bot : botResponse(ideas, isFeedback)
     updateSelectedPet((pet) => ({
       ...pet,
       knowledge: improveKnowledge(pet.knowledge, ideas, isFeedback ? 2 : 1),
@@ -128,6 +146,12 @@ function App() {
         text: response,
       },
     ])
+    if (scriptMatched) {
+      setScriptProgress((currentProgress) => ({
+        ...currentProgress,
+        [selectedPetId]: selectedScriptProgress + 1,
+      }))
+    }
     setTeachingText('')
     if (isFeedback && ideas.length > 0) {
       setCurrentProblemIndex((index) => (index + 1) % problems.length)
@@ -136,8 +160,18 @@ function App() {
     }
   }
 
+  function handleTeach() {
+    sendStudentMessage(teachingText)
+  }
+
+  function handleSuggestion(suggestion: DemoSuggestion) {
+    sendStudentMessage(suggestion.student)
+  }
+
   function handlePetTry() {
-    const nextAttempt = buildPetAttempt(problem, selectedPet.knowledge, selectedPet.personality)
+    const nextAttempt = selectedScript && canPetTry
+      ? { steps: selectedScript.whiteboardSteps }
+      : buildPetAttempt(problem, selectedPet.knowledge, selectedPet.personality)
     setAttempt(nextAttempt)
     setWhiteboardOpen(true)
     setStarPosition(null)
@@ -157,6 +191,7 @@ function App() {
         starPosition={starPosition}
         onSelectPet={handleSelectPet}
         onPetTry={handlePetTry}
+        canPetTry={canPetTry}
         onCloseWhiteboard={() => setWhiteboardOpen(false)}
         onPlaceStar={setStarPosition}
       />
@@ -184,12 +219,14 @@ function App() {
           selectedPetName={selectedPet.name}
           selectedPetColor={selectedPet.color}
           messages={selectedMessages}
+          suggestions={visibleSuggestions}
           hasAttempt={attempt !== null}
           detectedIdeas={detectedIdeas}
           ideaLabels={knowledgeLabels}
           inputRef={inputRef}
           onChange={setTeachingText}
           onSubmit={handleTeach}
+          onSuggestion={handleSuggestion}
         />
       </aside>
 

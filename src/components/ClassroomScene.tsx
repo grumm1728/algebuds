@@ -9,6 +9,7 @@ type ClassroomSceneProps = {
   problem: EquationProblem
   attempt: PetAttempt | null
   starPosition: { x: number; y: number } | null
+  canPetTry: boolean
   onSelectPet: (id: string) => void
   onPetTry: () => void
   onCloseWhiteboard: () => void
@@ -27,6 +28,7 @@ export function ClassroomScene({
   problem,
   attempt,
   starPosition,
+  canPetTry,
   onSelectPet,
   onPetTry,
   onCloseWhiteboard,
@@ -73,7 +75,7 @@ export function ClassroomScene({
         ))}
         <ClassroomObject className="supply-bin" label="supply bin" />
         <ClassroomObject className="clock" label="clock" />
-        {selectedPet.chatCount > 0 && (
+        {canPetTry && (
           <button
             className={`pet-desk-button pet-desk-button--${selectedPet.color}`}
             style={{
@@ -120,11 +122,20 @@ export function ClassroomScene({
               </div>
               <div className="whiteboard-work">
                 {attempt.steps.map((step, index) => (
-                  <p key={`${step}-${index}`} style={{ animationDelay: `${index * 150}ms` }}>
-                    {index + 1}. {step}
+                  <p key={`${step}-${index}`}>
+                    {`${index + 1}. ${step}`.split('').map((character, characterIndex) => (
+                      <span
+                        key={`${character}-${characterIndex}`}
+                        className="whiteboard-character"
+                        style={{ animationDelay: `${index * 1100 + characterIndex * 24}ms` }}
+                      >
+                        {character}
+                      </span>
+                    ))}
                   </p>
                 ))}
               </div>
+              <span className="robot-pencil" aria-hidden="true" />
               {attempt.error && <div className="whiteboard-error">{attempt.error}</div>}
               <div className="whiteboard-hint">Click the work to place one star sticker.</div>
               {starPosition && (
@@ -133,7 +144,7 @@ export function ClassroomScene({
                   style={{ left: `${starPosition.x}%`, top: `${starPosition.y}%` }}
                   aria-label="Star sticker"
                 >
-                  ★
+                  {'★'}
                 </span>
               )}
             </div>
@@ -143,3 +154,4 @@ export function ClassroomScene({
     </section>
   )
 }
+
