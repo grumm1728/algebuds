@@ -27,14 +27,39 @@ export type EquationProblem = {
   answer: string
 }
 
-export type PetAttempt = {
-  steps: string[]
-  error?: string
-}
-
 export type ChatMessage = {
   id: string
   petId: string
   sender: 'pet' | 'student'
   text: string
+}
+
+export type DemoSuggestion = {
+  id: string
+  student: string
+  bot: string
+}
+
+export type DemoScript = {
+  id: string
+  petId: string
+  title: string
+  opening: string
+  problem: string
+  readyMessage: string
+  suggestions: DemoSuggestion[]
+  whiteboardSteps: WhiteboardLine[]
+  feedback: DemoSuggestion
+}
+
+export type WhiteboardLine = {
+  kind: 'equation' | 'comment'
+  left?: string
+  right?: string
+  text: string
+}
+
+export type PetAttempt = {
+  steps: WhiteboardLine[]
+  error?: string
 }

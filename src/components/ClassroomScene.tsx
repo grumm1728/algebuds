@@ -9,6 +9,7 @@ type ClassroomSceneProps = {
   problem: EquationProblem
   attempt: PetAttempt | null
   starPosition: { x: number; y: number } | null
+  canPetTry: boolean
   onSelectPet: (id: string) => void
   onPetTry: () => void
   onCloseWhiteboard: () => void
@@ -27,12 +28,25 @@ export function ClassroomScene({
   problem,
   attempt,
   starPosition,
+  canPetTry,
   onSelectPet,
   onPetTry,
   onCloseWhiteboard,
   onPlaceStar,
 }: ClassroomSceneProps) {
   const selectedPet = pets.find((pet) => pet.id === selectedPetId) ?? pets[0]
+
+  function renderWrittenText(text: string, delayOffset: number) {
+    return text.split('').map((character, characterIndex) => (
+      <span
+        key={`${character}-${characterIndex}`}
+        className="whiteboard-character"
+        style={{ animationDelay: `${delayOffset + characterIndex * 24}ms` }}
+      >
+        {character}
+      </span>
+    ))
+  }
 
   function handleWhiteboardClick(event: MouseEvent<HTMLDivElement>) {
     const rect = event.currentTarget.getBoundingClientRect()
@@ -73,7 +87,7 @@ export function ClassroomScene({
         ))}
         <ClassroomObject className="supply-bin" label="supply bin" />
         <ClassroomObject className="clock" label="clock" />
-        {selectedPet.chatCount > 0 && (
+        {canPetTry && (
           <button
             className={`pet-desk-button pet-desk-button--${selectedPet.color}`}
             style={{
@@ -120,11 +134,20 @@ export function ClassroomScene({
               </div>
               <div className="whiteboard-work">
                 {attempt.steps.map((step, index) => (
-                  <p key={`${step}-${index}`} style={{ animationDelay: `${index * 150}ms` }}>
-                    {index + 1}. {step}
+                  <p className={`whiteboard-line whiteboard-line--${step.kind}`} key={`${step.text}-${index}`}>
+                    {step.kind === 'equation' ? (
+                      <>
+                        <span className="equation-left">{renderWrittenText(step.left ?? '', index * 1100)}</span>
+                        <span className="equation-equals">{renderWrittenText('=', index * 1100 + 180)}</span>
+                        <span className="equation-right">{renderWrittenText(step.right ?? '', index * 1100 + 240)}</span>
+                      </>
+                    ) : (
+                      renderWrittenText(step.text, index * 1100)
+                    )}
                   </p>
                 ))}
               </div>
+              <span className="robot-pencil" aria-hidden="true" />
               {attempt.error && <div className="whiteboard-error">{attempt.error}</div>}
               <div className="whiteboard-hint">Click the work to place one star sticker.</div>
               {starPosition && (
@@ -133,7 +156,7 @@ export function ClassroomScene({
                   style={{ left: `${starPosition.x}%`, top: `${starPosition.y}%` }}
                   aria-label="Star sticker"
                 >
-                  ★
+                  {'★'}
                 </span>
               )}
             </div>
@@ -143,3 +166,4 @@ export function ClassroomScene({
     </section>
   )
 }
+

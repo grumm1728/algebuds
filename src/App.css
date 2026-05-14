@@ -630,7 +630,7 @@ textarea {
 
 .dialogue-panel {
   display: grid;
-  grid-template-rows: minmax(0, 1fr) auto auto;
+  grid-template-rows: minmax(0, 1fr) auto auto auto;
   gap: 12px;
   background:
     radial-gradient(circle at 14px 14px, var(--chat-pattern) 0 2px, transparent 2.5px) 0 0 / 28px 28px,
@@ -736,6 +736,33 @@ textarea {
   height: 48px;
 }
 
+.suggestion-tray {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 3px solid #4b385f;
+  border-radius: 8px;
+  background: rgba(255, 253, 245, 0.72);
+}
+
+.suggestion-tray button {
+  width: 100%;
+  border: 3px solid #4b385f;
+  border-radius: 12px;
+  padding: 9px 12px;
+  background: #fffdf5;
+  color: #47385b;
+  cursor: pointer;
+  font-weight: 780;
+  line-height: 1.22;
+  text-align: left;
+  box-shadow: 0 3px 0 rgba(75, 56, 95, 0.18);
+}
+
+.suggestion-tray button:hover {
+  background: #dff2ea;
+}
+
 .idea-preview {
   display: flex;
   flex-wrap: wrap;
@@ -813,20 +840,78 @@ textarea {
 
 .whiteboard-work {
   display: grid;
-  gap: 9px;
+  gap: 8px;
   color: #3e3150;
 }
 
-.whiteboard-work p {
+.whiteboard-line {
   margin: 0;
-  padding: 8px 12px;
-  border-left: 5px solid #7cb8b8;
+  padding: 7px 12px;
   background: rgba(255, 255, 255, 0.72);
-  font-size: 1rem;
+  font-family: "Comic Sans MS", "Bradley Hand ITC", "Segoe Print", cursive;
+  font-size: 1.16rem;
   font-weight: 780;
+  min-height: 38px;
+}
+
+.whiteboard-line--equation {
+  display: grid;
+  grid-template-columns: minmax(110px, 1fr) 24px minmax(110px, 1fr);
+  align-items: baseline;
+  width: min(460px, 100%);
+}
+
+.whiteboard-line--comment {
+  width: fit-content;
+  max-width: 78%;
+  margin-left: 40px;
+  color: #766987;
+  font-size: 0.92rem;
+  transform: rotate(-1deg);
+}
+
+.equation-left {
+  text-align: right;
+}
+
+.equation-equals {
+  text-align: center;
+}
+
+.equation-right {
+  text-align: left;
+}
+
+.whiteboard-character {
   opacity: 0;
-  transform: translateY(6px);
-  animation: stepIn 360ms ease forwards;
+  animation: writeCharacter 90ms linear forwards;
+  white-space: pre;
+}
+
+.robot-pencil {
+  position: absolute;
+  left: 24%;
+  top: 34%;
+  width: 56px;
+  height: 13px;
+  border: 3px solid #4b385f;
+  border-radius: 999px 6px 6px 999px;
+  background: linear-gradient(90deg, #ffcf5d 0 70%, #f6f0df 70% 86%, #4b385f 86%);
+  box-shadow: 0 4px 0 rgba(75, 56, 95, 0.16);
+  transform-origin: center;
+  animation: robotPencilWrite 5.8s ease-in-out forwards;
+}
+
+.robot-pencil::before {
+  content: "";
+  position: absolute;
+  left: -13px;
+  top: -7px;
+  width: 16px;
+  height: 21px;
+  border: 3px solid #4b385f;
+  border-radius: 8px;
+  background: #aee7d2;
 }
 
 .whiteboard-error {
@@ -896,6 +981,38 @@ textarea {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes writeCharacter {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes robotPencilWrite {
+  0% {
+    transform: translate(0, 0) rotate(-8deg);
+  }
+
+  18% {
+    transform: translate(250px, 4px) rotate(4deg);
+  }
+
+  35% {
+    transform: translate(70px, 52px) rotate(-6deg);
+  }
+
+  52% {
+    transform: translate(260px, 94px) rotate(5deg);
+  }
+
+  72% {
+    transform: translate(70px, 146px) rotate(-7deg);
+  }
+
+  100% {
+    transform: translate(405px, 246px) rotate(3deg);
   }
 }
 
