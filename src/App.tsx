@@ -81,25 +81,30 @@ function App() {
   const [currentProblemIndex, setCurrentProblemIndex] = useState(0)
   const [messages, setMessages] = useState<ChatMessage[]>(starterMessages)
   const [scriptProgress, setScriptProgress] = useState<Record<string, number>>({})
+  const [feedbackPrompted, setFeedbackPrompted] = useState(false)
+  const [completedScripts, setCompletedScripts] = useState<Record<string, boolean>>({})
   const inputRef = useRef<HTMLInputElement | null>(null)
 
   const selectedPet = pets.find((pet) => pet.id === selectedPetId) ?? pets[0]
   const selectedScript = getDemoScriptForPet(selectedPetId)
   const selectedScriptProgress = scriptProgress[selectedPetId] ?? 0
+  const selectedScriptComplete = Boolean(completedScripts[selectedPetId])
   const problem = selectedScript
     ? {
         prompt: selectedScript.problem,
-        correctSteps: selectedScript.whiteboardSteps,
-        answer: selectedScript.whiteboardSteps.at(-1) ?? '',
+        correctSteps: selectedScript.whiteboardSteps.map((line) => line.text),
+        answer: selectedScript.whiteboardSteps.at(-1)?.text ?? '',
       }
     : problems[currentProblemIndex]
   const selectedMessages = messages.filter((message) => message.petId === selectedPetId)
-  const visibleSuggestions = selectedScript
-    ? selectedScript.suggestions.slice(selectedScriptProgress, selectedScriptProgress + 2)
+  const visibleSuggestions = selectedScript && !selectedScriptComplete
+    ? starPosition && attempt
+      ? [selectedScript.feedback]
+      : selectedScript.suggestions.slice(selectedScriptProgress, selectedScriptProgress + 2)
     : []
-  const canPetTry = selectedScript
+  const canPetTry = !attempt && !selectedScriptComplete && (selectedScript
     ? selectedScriptProgress >= selectedScript.suggestions.length
-    : selectedPet.chatCount > 0
+    : selectedPet.chatCount > 0)
 
   const detectedIdeas = useMemo(() => detectTeachingIdeas(teachingText), [teachingText])
 
@@ -113,6 +118,7 @@ function App() {
     setSelectedPetId(id)
     setAttempt(null)
     setWhiteboardOpen(false)
+    setFeedbackPrompted(false)
     window.setTimeout(() => inputRef.current?.focus(), 0)
   }
 
@@ -122,9 +128,14 @@ function App() {
 
     const scriptedSuggestion = selectedScript?.suggestions[selectedScriptProgress]
     const scriptMatched = scriptedSuggestion?.student === trimmedText
+    const feedbackMatched = Boolean(selectedScript && attempt && trimmedText === selectedScript.feedback.student)
     const ideas = detectTeachingIdeas(trimmedText)
     const isFeedback = attempt !== null
-    const response = scriptMatched ? scriptedSuggestion.bot : botResponse(ideas, isFeedback)
+    const response = feedbackMatched
+      ? selectedScript?.feedback.bot ?? 'Thanks. I see what to fix now.'
+      : scriptMatched
+        ? scriptedSuggestion.bot
+        : botResponse(ideas, isFeedback)
     updateSelectedPet((pet) => ({
       ...pet,
       knowledge: improveKnowledge(pet.knowledge, ideas, isFeedback ? 2 : 1),
@@ -153,6 +164,20 @@ function App() {
       }))
     }
     setTeachingText('')
+    if (feedbackMatched) {
+      window.setTimeout(() => {
+        setAttempt(null)
+        setWhiteboardOpen(false)
+        setStarPosition(null)
+        setFeedbackPrompted(false)
+        setCompletedScripts((currentCompleted) => ({
+          ...currentCompleted,
+          [selectedPetId]: true,
+        }))
+      }, 950)
+      return
+    }
+
     if (isFeedback && ideas.length > 0) {
       setCurrentProblemIndex((index) => (index + 1) % problems.length)
       setAttempt(null)
@@ -175,10 +200,29 @@ function App() {
     setAttempt(nextAttempt)
     setWhiteboardOpen(true)
     setStarPosition(null)
+    setFeedbackPrompted(false)
     updateSelectedPet((pet) => ({
       ...pet,
       reaction: nextAttempt.error ? 'I tried, but I may need a hint.' : 'Beep-beep, that felt correct!',
     }))
+  }
+
+  function handlePlaceStar(position: { x: number; y: number }) {
+    setStarPosition(position)
+
+    if (!feedbackPrompted) {
+      setMessages((currentMessages) => [
+        ...currentMessages,
+        {
+          id: `${selectedPetId}-pet-feedback-${Date.now()}`,
+          petId: selectedPetId,
+          sender: 'pet',
+          text: 'Can you tell me what I should fix before I try again?',
+        },
+      ])
+      setFeedbackPrompted(true)
+      window.setTimeout(() => inputRef.current?.focus(), 0)
+    }
   }
 
   return (
@@ -193,7 +237,7 @@ function App() {
         onPetTry={handlePetTry}
         canPetTry={canPetTry}
         onCloseWhiteboard={() => setWhiteboardOpen(false)}
-        onPlaceStar={setStarPosition}
+        onPlaceStar={handlePlaceStar}
       />
 
       <aside className="coach-panel" aria-label="Algebuds teaching panel">

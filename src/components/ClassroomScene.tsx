@@ -36,6 +36,18 @@ export function ClassroomScene({
 }: ClassroomSceneProps) {
   const selectedPet = pets.find((pet) => pet.id === selectedPetId) ?? pets[0]
 
+  function renderWrittenText(text: string, delayOffset: number) {
+    return text.split('').map((character, characterIndex) => (
+      <span
+        key={`${character}-${characterIndex}`}
+        className="whiteboard-character"
+        style={{ animationDelay: `${delayOffset + characterIndex * 24}ms` }}
+      >
+        {character}
+      </span>
+    ))
+  }
+
   function handleWhiteboardClick(event: MouseEvent<HTMLDivElement>) {
     const rect = event.currentTarget.getBoundingClientRect()
     onPlaceStar({
@@ -122,16 +134,16 @@ export function ClassroomScene({
               </div>
               <div className="whiteboard-work">
                 {attempt.steps.map((step, index) => (
-                  <p key={`${step}-${index}`}>
-                    {`${index + 1}. ${step}`.split('').map((character, characterIndex) => (
-                      <span
-                        key={`${character}-${characterIndex}`}
-                        className="whiteboard-character"
-                        style={{ animationDelay: `${index * 1100 + characterIndex * 24}ms` }}
-                      >
-                        {character}
-                      </span>
-                    ))}
+                  <p className={`whiteboard-line whiteboard-line--${step.kind}`} key={`${step.text}-${index}`}>
+                    {step.kind === 'equation' ? (
+                      <>
+                        <span className="equation-left">{renderWrittenText(step.left ?? '', index * 1100)}</span>
+                        <span className="equation-equals">{renderWrittenText('=', index * 1100 + 180)}</span>
+                        <span className="equation-right">{renderWrittenText(step.right ?? '', index * 1100 + 240)}</span>
+                      </>
+                    ) : (
+                      renderWrittenText(step.text, index * 1100)
+                    )}
                   </p>
                 ))}
               </div>

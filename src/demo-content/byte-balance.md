@@ -24,7 +24,12 @@ Bot: I think I am ready to try it on the whiteboard.
 I think I am ready to try it on the whiteboard.
 
 ## Whiteboard
-- Start with 2x + 4 = 14.
-- Subtract 4 from both sides: 2x = 10.
-- Divide both sides by 2: x = 5.
-- Check: 2(5) + 4 = 14, so x = 5.
+- 2x + 4 = 14
+- add 4 to both sides
+- 2x = 18
+- divide by 2
+- x = 9
+
+## Feedback
+Student: Careful, you added 4 instead of subtracting 4. To undo +4, subtract 4 from both sides.
+Bot: Thanks. I see the mistake now: undoing +4 means subtracting 4, not adding it.

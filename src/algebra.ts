@@ -80,9 +80,9 @@ export function buildPetAttempt(
   if (hasGap(knowledge, 'undo') || (dreamySlip && problem.prompt.includes('+'))) {
     return {
       steps: [
-        `I see ${problem.prompt}.`,
-        'I divide first because I spotted a number near x.',
-        'That gives a messy answer, so I guess x = 4.',
+        { kind: 'comment', text: `I see ${problem.prompt}.` },
+        { kind: 'comment', text: 'I divide first because I spotted a number near x.' },
+        { kind: 'comment', text: 'That gives a messy answer, so I guess x = 4.' },
       ],
       error: 'The pet divided too early instead of undoing addition or subtraction first.',
     }
@@ -91,9 +91,9 @@ export function buildPetAttempt(
   if (hasGap(knowledge, 'balance') || boldSlip) {
     return {
       steps: [
-        `I see ${problem.prompt}.`,
-        'I undo the extra number on the left side only.',
-        'The equation looks simpler, so my answer is probably done.',
+        { kind: 'comment', text: `I see ${problem.prompt}.` },
+        { kind: 'comment', text: 'I undo the extra number on the left side only.' },
+        { kind: 'comment', text: 'The equation looks simpler, so my answer is probably done.' },
       ],
       error: 'The pet forgot to do the same operation to both sides.',
     }
@@ -102,9 +102,9 @@ export function buildPetAttempt(
   if (hasGap(knowledge, 'divide') && problem.prompt.match(/^\d+x/)) {
     return {
       steps: [
-        `I see ${problem.prompt}.`,
-        'I undo addition or subtraction on both sides.',
-        'I stop when the number is still attached to x.',
+        { kind: 'comment', text: `I see ${problem.prompt}.` },
+        { kind: 'comment', text: 'I undo addition or subtraction on both sides.' },
+        { kind: 'comment', text: 'I stop when the number is still attached to x.' },
       ],
       error: 'The pet did not divide by the coefficient to finish isolating x.',
     }
@@ -112,10 +112,10 @@ export function buildPetAttempt(
 
   if (hasGap(knowledge, 'check') && Math.random() < 0.45) {
     return {
-      steps: problem.correctSteps.slice(0, -1),
+      steps: problem.correctSteps.slice(0, -1).map((step) => ({ kind: 'comment', text: step })),
       error: 'The pet found an answer but skipped checking it in the original equation.',
     }
   }
 
-  return { steps: problem.correctSteps }
+  return { steps: problem.correctSteps.map((step) => ({ kind: 'comment', text: step })) }
 }

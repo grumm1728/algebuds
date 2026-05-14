@@ -840,19 +840,46 @@ textarea {
 
 .whiteboard-work {
   display: grid;
-  gap: 9px;
+  gap: 8px;
   color: #3e3150;
 }
 
-.whiteboard-work p {
+.whiteboard-line {
   margin: 0;
-  padding: 8px 12px;
-  border-left: 5px solid #7cb8b8;
+  padding: 7px 12px;
   background: rgba(255, 255, 255, 0.72);
   font-family: "Comic Sans MS", "Bradley Hand ITC", "Segoe Print", cursive;
-  font-size: 1.08rem;
+  font-size: 1.16rem;
   font-weight: 780;
-  min-height: 42px;
+  min-height: 38px;
+}
+
+.whiteboard-line--equation {
+  display: grid;
+  grid-template-columns: minmax(110px, 1fr) 24px minmax(110px, 1fr);
+  align-items: baseline;
+  width: min(460px, 100%);
+}
+
+.whiteboard-line--comment {
+  width: fit-content;
+  max-width: 78%;
+  margin-left: 40px;
+  color: #766987;
+  font-size: 0.92rem;
+  transform: rotate(-1deg);
+}
+
+.equation-left {
+  text-align: right;
+}
+
+.equation-equals {
+  text-align: center;
+}
+
+.equation-right {
+  text-align: left;
 }
 
 .whiteboard-character {
@@ -863,8 +890,8 @@ textarea {
 
 .robot-pencil {
   position: absolute;
-  left: 25%;
-  top: 36%;
+  left: 24%;
+  top: 34%;
   width: 56px;
   height: 13px;
   border: 3px solid #4b385f;
@@ -872,7 +899,7 @@ textarea {
   background: linear-gradient(90deg, #ffcf5d 0 70%, #f6f0df 70% 86%, #4b385f 86%);
   box-shadow: 0 4px 0 rgba(75, 56, 95, 0.16);
   transform-origin: center;
-  animation: robotPencilWrite 4.8s ease-in-out infinite;
+  animation: robotPencilWrite 5.8s ease-in-out forwards;
 }
 
 .robot-pencil::before {
@@ -968,24 +995,24 @@ textarea {
     transform: translate(0, 0) rotate(-8deg);
   }
 
-  22% {
-    transform: translate(230px, 22px) rotate(4deg);
+  18% {
+    transform: translate(250px, 4px) rotate(4deg);
   }
 
-  42% {
-    transform: translate(30px, 74px) rotate(-6deg);
+  35% {
+    transform: translate(70px, 52px) rotate(-6deg);
   }
 
-  63% {
-    transform: translate(245px, 124px) rotate(5deg);
+  52% {
+    transform: translate(260px, 94px) rotate(5deg);
   }
 
-  84% {
-    transform: translate(42px, 176px) rotate(-7deg);
+  72% {
+    transform: translate(70px, 146px) rotate(-7deg);
   }
 
   100% {
-    transform: translate(0, 0) rotate(-8deg);
+    transform: translate(405px, 246px) rotate(3deg);
   }
 }
 

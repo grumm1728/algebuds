@@ -1,5 +1,5 @@
 import byteBalance from './demo-content/byte-balance.md?raw'
-import type { DemoScript, DemoSuggestion } from './types'
+import type { DemoScript, DemoSuggestion, WhiteboardLine } from './types'
 
 function readField(source: string, field: string) {
   const match = source.match(new RegExp(`^${field}:\\s*(.+)$`, 'm'))
@@ -31,11 +31,41 @@ function parseSuggestions(source: string): DemoSuggestion[] {
   }).filter((suggestion) => suggestion.student && suggestion.bot)
 }
 
+function parseWhiteboardLine(line: string): WhiteboardLine {
+  if (!line.includes('=')) {
+    return {
+      kind: 'comment',
+      text: line,
+    }
+  }
+
+  const [left, ...rightParts] = line.split('=')
+  const right = rightParts.join('=').trim()
+
+  return {
+    kind: 'equation',
+    left: left.trim(),
+    right,
+    text: line,
+  }
+}
+
 function parseWhiteboardSteps(source: string) {
   return readSection(source, 'Whiteboard')
     .split('\n')
     .map((line) => cleanText(line.replace(/^-\s*/, '').trim()))
     .filter(Boolean)
+    .map(parseWhiteboardLine)
+}
+
+function parseFeedback(source: string): DemoSuggestion {
+  const section = readSection(source, 'Feedback')
+
+  return {
+    id: 'feedback',
+    student: cleanText(section.match(/Student:\s*([\s\S]*?)(?=\nBot:|$)/)?.[1].trim() ?? ''),
+    bot: cleanText(section.match(/Bot:\s*([\s\S]*)/)?.[1].trim() ?? ''),
+  }
 }
 
 function parseDemoScript(source: string, id: string): DemoScript {
@@ -48,6 +78,7 @@ function parseDemoScript(source: string, id: string): DemoScript {
     readyMessage: readSection(source, 'Ready'),
     suggestions: parseSuggestions(source),
     whiteboardSteps: parseWhiteboardSteps(source),
+    feedback: parseFeedback(source),
   }
 }
 
