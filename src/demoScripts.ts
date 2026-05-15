@@ -1,4 +1,6 @@
 import byteBalance from './demo-content/byte-balance.md?raw'
+import nibiFast from './demo-content/nibi-fast.md?raw'
+import pippaCheck from './demo-content/pippa-check.md?raw'
 import type { DemoScript, DemoSuggestion, WhiteboardLine } from './types'
 
 function readField(source: string, field: string) {
@@ -7,7 +9,7 @@ function readField(source: string, field: string) {
 }
 
 function readSection(source: string, heading: string) {
-  const match = source.match(new RegExp(`## ${heading}\\n([\\s\\S]*?)(?=\\n## |$)`))
+  const match = source.match(new RegExp(`## ${heading}\\r?\\n([\\s\\S]*?)(?=\\r?\\n## |$)`))
   return cleanText(match?.[1].trim() ?? '')
 }
 
@@ -17,10 +19,10 @@ function cleanText(text: string) {
 
 function parseSuggestions(source: string): DemoSuggestion[] {
   const section = readSection(source, 'Suggestions')
-  const chunks = section.split(/\n### /).filter(Boolean)
+  const chunks = section.split(/\r?\n### /).filter(Boolean)
 
   return chunks.map((chunk, index) => {
-    const student = cleanText(chunk.match(/Student:\s*([\s\S]*?)(?=\nBot:|$)/)?.[1].trim() ?? '')
+    const student = cleanText(chunk.match(/Student:\s*([\s\S]*?)(?=\r?\nBot:|$)/)?.[1].trim() ?? '')
     const bot = cleanText(chunk.match(/Bot:\s*([\s\S]*)/)?.[1].trim() ?? '')
 
     return {
@@ -52,7 +54,7 @@ function parseWhiteboardLine(line: string): WhiteboardLine {
 
 function parseWhiteboardSteps(source: string) {
   return readSection(source, 'Whiteboard')
-    .split('\n')
+    .split(/\r?\n/)
     .map((line) => cleanText(line.replace(/^-\s*/, '').trim()))
     .filter(Boolean)
     .map(parseWhiteboardLine)
@@ -63,7 +65,7 @@ function parseFeedback(source: string): DemoSuggestion {
 
   return {
     id: 'feedback',
-    student: cleanText(section.match(/Student:\s*([\s\S]*?)(?=\nBot:|$)/)?.[1].trim() ?? ''),
+    student: cleanText(section.match(/Student:\s*([\s\S]*?)(?=\r?\nBot:|$)/)?.[1].trim() ?? ''),
     bot: cleanText(section.match(/Bot:\s*([\s\S]*)/)?.[1].trim() ?? ''),
   }
 }
@@ -82,7 +84,11 @@ function parseDemoScript(source: string, id: string): DemoScript {
   }
 }
 
-const demoScripts = [parseDemoScript(byteBalance, 'byte-balance')]
+const demoScripts = [
+  parseDemoScript(byteBalance, 'byte-balance'),
+  parseDemoScript(nibiFast, 'nibi-fast'),
+  parseDemoScript(pippaCheck, 'pippa-check'),
+]
 
 export function getDemoScriptForPet(petId: string) {
   return demoScripts.find((script) => script.petId === petId)

@@ -632,22 +632,22 @@ textarea {
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto auto auto;
   gap: 12px;
-  background:
-    radial-gradient(circle at 14px 14px, var(--chat-pattern) 0 2px, transparent 2.5px) 0 0 / 28px 28px,
-    linear-gradient(#fff7db, #f0d49c);
+  background: var(--chat-pattern), linear-gradient(#fff7db, #f0d49c);
   min-height: 0;
 }
 
 .dialogue-panel--blue {
-  --chat-pattern: rgba(68, 132, 184, 0.22);
+  --chat-pattern: radial-gradient(circle at 14px 14px, rgba(68, 132, 184, 0.22) 0 2px, transparent 2.5px) 0 0 / 28px 28px;
 }
 
 .dialogue-panel--yellow {
-  --chat-pattern: rgba(139, 111, 32, 0.22);
+  --chat-pattern:
+    linear-gradient(135deg, transparent 0 38%, rgba(139, 111, 32, 0.2) 38% 45%, transparent 45% 55%, rgba(139, 111, 32, 0.2) 55% 62%, transparent 62%) 0 0 / 34px 18px;
 }
 
 .dialogue-panel--pink {
-  --chat-pattern: rgba(142, 82, 119, 0.22);
+  --chat-pattern:
+    linear-gradient(rgba(142, 82, 119, 0.18), rgba(142, 82, 119, 0.18)) 9px 9px / 8px 8px repeat;
 }
 
 .chat-log {
@@ -707,6 +707,20 @@ textarea {
 .chat-bubble--student strong,
 .chat-bubble--student span {
   color: #315147;
+}
+
+.demo-complete {
+  justify-self: center;
+  margin: 10px 0;
+  padding: 6px 12px;
+  border: 3px solid #4b385f;
+  border-radius: 999px;
+  background: #fff3bf;
+  color: #614274;
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  box-shadow: 0 3px 0 rgba(75, 56, 95, 0.16);
 }
 
 .dialogue-input {

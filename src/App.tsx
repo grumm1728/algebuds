@@ -217,7 +217,7 @@ function App() {
           id: `${selectedPetId}-pet-feedback-${Date.now()}`,
           petId: selectedPetId,
           sender: 'pet',
-          text: 'Can you tell me what I should fix before I try again?',
+          text: 'Can you leave me feedback on my whiteboard work?',
         },
       ])
       setFeedbackPrompted(true)
@@ -265,6 +265,7 @@ function App() {
           messages={selectedMessages}
           suggestions={visibleSuggestions}
           hasAttempt={attempt !== null}
+          isComplete={selectedScriptComplete}
           detectedIdeas={detectedIdeas}
           ideaLabels={knowledgeLabels}
           inputRef={inputRef}

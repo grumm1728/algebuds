@@ -8,6 +8,7 @@ type DialogueInputProps = {
   messages: ChatMessage[]
   suggestions: DemoSuggestion[]
   hasAttempt: boolean
+  isComplete: boolean
   detectedIdeas: KnowledgeKey[]
   ideaLabels: Record<KnowledgeKey, string>
   inputRef: RefObject<HTMLInputElement | null>
@@ -23,6 +24,7 @@ export function DialogueInput({
   messages,
   suggestions,
   hasAttempt,
+  isComplete,
   detectedIdeas,
   ideaLabels,
   inputRef,
@@ -53,6 +55,11 @@ export function DialogueInput({
             </div>
           </div>
         ))}
+        {isComplete && (
+          <div className="demo-complete" aria-live="polite">
+            Demo complete
+          </div>
+        )}
       </div>
       {suggestions.length > 0 && (
         <div className="suggestion-tray" aria-label="Suggested messages">
