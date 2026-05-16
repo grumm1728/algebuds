@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from 'react'
 import './App.css'
 import { buildPetAttempt, detectTeachingIdeas, improveKnowledge, knowledgeLabels, problems } from './algebra'
+import { AlgebraKitchenMode } from './components/AlgebraKitchenMode'
 import { ClassroomScene } from './components/ClassroomScene'
 import { DialogueInput } from './components/DialogueInput'
 import { getDemoScriptForPet } from './demoScripts'
@@ -72,6 +73,7 @@ const starterMessages: ChatMessage[] = starterPets.flatMap((pet) => [
 ])
 
 function App() {
+  const [mode, setMode] = useState<'classroom' | 'kitchen'>('classroom')
   const [pets, setPets] = useState(starterPets)
   const [selectedPetId, setSelectedPetId] = useState(starterPets[0].id)
   const [teachingText, setTeachingText] = useState('')
@@ -226,55 +228,77 @@ function App() {
   }
 
   return (
-    <main className="app">
-      <ClassroomScene
-        pets={pets}
-        selectedPetId={selectedPetId}
-        problem={problem}
-        attempt={whiteboardOpen ? attempt : null}
-        starPosition={starPosition}
-        onSelectPet={handleSelectPet}
-        onPetTry={handlePetTry}
-        canPetTry={canPetTry}
-        onCloseWhiteboard={() => setWhiteboardOpen(false)}
-        onPlaceStar={handlePlaceStar}
-      />
+    <main className={`app app--${mode}`}>
+      <nav className="mode-switch" aria-label="Algebuds mode switcher">
+        <button
+          className={mode === 'classroom' ? 'active' : ''}
+          type="button"
+          onClick={() => setMode('classroom')}
+        >
+          Classroom
+        </button>
+        <button
+          className={mode === 'kitchen' ? 'active' : ''}
+          type="button"
+          onClick={() => setMode('kitchen')}
+        >
+          Algebra Kitchen
+        </button>
+      </nav>
 
-      <aside className="coach-panel" aria-label="Algebuds teaching panel">
-        <section className="panel-card pet-picker">
-          <p className="eyebrow">Choose an Algebud</p>
-          <div className="pet-tabs">
-            {pets.map((pet) => (
-              <button
-                key={pet.id}
-                className={pet.id === selectedPetId ? 'active' : ''}
-                type="button"
-                onClick={() => handleSelectPet(pet.id)}
-              >
-                <span className={`mini-dot mini-dot--${pet.color}`} />
-                {pet.name}
-              </button>
-            ))}
-          </div>
-        </section>
+      {mode === 'kitchen' ? (
+        <AlgebraKitchenMode />
+      ) : (
+        <>
+          <ClassroomScene
+            pets={pets}
+            selectedPetId={selectedPetId}
+            problem={problem}
+            attempt={whiteboardOpen ? attempt : null}
+            starPosition={starPosition}
+            onSelectPet={handleSelectPet}
+            onPetTry={handlePetTry}
+            canPetTry={canPetTry}
+            onCloseWhiteboard={() => setWhiteboardOpen(false)}
+            onPlaceStar={handlePlaceStar}
+          />
 
-        <DialogueInput
-          value={teachingText}
-          selectedPetName={selectedPet.name}
-          selectedPetColor={selectedPet.color}
-          messages={selectedMessages}
-          suggestions={visibleSuggestions}
-          hasAttempt={attempt !== null}
-          isComplete={selectedScriptComplete}
-          detectedIdeas={detectedIdeas}
-          ideaLabels={knowledgeLabels}
-          inputRef={inputRef}
-          onChange={setTeachingText}
-          onSubmit={handleTeach}
-          onSuggestion={handleSuggestion}
-        />
-      </aside>
+          <aside className="coach-panel" aria-label="Algebuds teaching panel">
+            <section className="panel-card pet-picker">
+              <p className="eyebrow">Choose an Algebud</p>
+              <div className="pet-tabs">
+                {pets.map((pet) => (
+                  <button
+                    key={pet.id}
+                    className={pet.id === selectedPetId ? 'active' : ''}
+                    type="button"
+                    onClick={() => handleSelectPet(pet.id)}
+                  >
+                    <span className={`mini-dot mini-dot--${pet.color}`} />
+                    {pet.name}
+                  </button>
+                ))}
+              </div>
+            </section>
 
+            <DialogueInput
+              value={teachingText}
+              selectedPetName={selectedPet.name}
+              selectedPetColor={selectedPet.color}
+              messages={selectedMessages}
+              suggestions={visibleSuggestions}
+              hasAttempt={attempt !== null}
+              isComplete={selectedScriptComplete}
+              detectedIdeas={detectedIdeas}
+              ideaLabels={knowledgeLabels}
+              inputRef={inputRef}
+              onChange={setTeachingText}
+              onSubmit={handleTeach}
+              onSuggestion={handleSuggestion}
+            />
+          </aside>
+        </>
+      )}
     </main>
   )
 }
